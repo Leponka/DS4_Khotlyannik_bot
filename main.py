@@ -12,7 +12,6 @@ from random import randint
 import dbworker
 import numpy as np
 from tabulate import tabulate
-# print(config.states.S_START)
 bot = telebot.TeleBot(config.token)
 
 pict = (
@@ -71,12 +70,7 @@ def hello(message):
 @bot.message_handler(commands=['map'])
 def send_welcome(message):
     bot.send_photo(message.chat.id, pict[1])
- #   bot.send_message(message.chat.id, dbworker.get_current_state(message))
 
-
-#  bot.send_message(message.chat.id, config.states.S_START.value)
-# state = dbworker.get_current_state(message)
-#  print(state)
 
 @bot.message_handler(commands=["reset"])
 def cmd_reset(message):
