@@ -1,8 +1,8 @@
 import wiki
 import config
 from config import token
+from dotenv import load_dotenv
 
-print(token)
 import requests
 import bs4
 from bs4 import BeautifulSoup
@@ -12,7 +12,12 @@ from random import randint
 import dbworker
 import numpy as np
 from tabulate import tabulate
-bot = telebot.TeleBot(config.token)
+import os
+#from os import environ
+from dotenv import load_dotenv
+load_dotenv()
+TOKEN = os.environ.get('token')
+bot = telebot.TeleBot(token=TOKEN)
 
 pict = (
     'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/World_Population.svg/400px-World_Population.svg.png',
