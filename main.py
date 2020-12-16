@@ -13,7 +13,7 @@ import dbworker
 import numpy as np
 from tabulate import tabulate
 import os
-#from os import environ
+# from os import environ
 from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.environ.get('token')
@@ -54,7 +54,7 @@ def send_welcome(message):
 
 
 @bot.message_handler(commands=['help'])
-def send_welcome(message):
+def send_help(message):
     bot.reply_to(message, "/start - поздороваться \n"
                           "/about - информация обо мне \n"
                           "/help - посмотреть команды, которые можно выбрать \n"
@@ -73,7 +73,7 @@ def hello(message):
 
 
 @bot.message_handler(commands=['map'])
-def send_welcome(message):
+def send_map(message):
     bot.send_photo(message.chat.id, pict[1])
 
 
@@ -81,12 +81,12 @@ def send_welcome(message):
 def cmd_reset(message):
     bot.send_message(message.chat.id, "Вернемся к началу.\n"
                                       "Хотите посмотреть карту численности населения /map или информацию по странам /table? \n"
-                                      "Или выбирайте /about или  /help , чтобы посмотреть информацию обо мне." )
+                                      "Или выбирайте /about или  /help , чтобы посмотреть информацию обо мне.")
     bot.send_photo(message.chat.id, pict[randint(2, 8)])
     dbworker.set_state(message.chat.id, config.states.S_START.value)
 
 @bot.message_handler(commands=['table'])
-def send_welcome(message):
+def send_table(message):
     bot.send_message(message.chat.id, "Хотите посмотреть численность одной конкретной страны? Тогда выбирайте: /country \n"
                                       "Или показать список стран? Тогда выбирайте: \n"
                                       "/list_tail  список самых малочисленных стран  или \n"
@@ -103,7 +103,7 @@ def get_detail(message):
         dbworker.set_state(str(message.chat.id) + 'detail', 'list_tail')
         dbworker.set_state(message.chat.id, config.states.S_TAIL_LIST.value)
     elif message.text.lower().strip() == '/list_head':
-        bot.send_message(message.chat.id, "Список из которого числа стран вам показать? Напишите любое число от 0 до "
+        bot.send_message(message.chat.id, "Список из которого числа стран вам показать? Напишите любое число от 1 до "
                          + str(wiki.count_of_country))
         dbworker.set_state(str(message.chat.id) + 'detail', 'list_head')
         dbworker.set_state(message.chat.id, config.states.S_HEAD_LIST.value)
@@ -122,17 +122,17 @@ def get_detail(message):
                                           "Выбирайте /reset, чтобы начать сначала.")
 
 
-@bot.message_handler(func=lambda message: message.text.lower() not in ('/start' , '/help', '/map', '/table', '/finish', '/about', '/reset')
+@bot.message_handler(func=lambda message: message.text.lower() not in ('/start', '/help', '/map', '/table', '/finish', '/about', '/reset')
                      and dbworker.get_current_state(message.chat.id) == config.states.S_TAIL_LIST.value)
 def tail_list(message):
     if message.text.lower().strip().isdigit() and int(message.text.lower().strip()) <= wiki.count_of_country and int(message.text.lower().strip()) >= 1:
         x = wiki.country_pop_info.country
-        bot.send_message(message.chat.id,'\n '.join(i for i in list(x[wiki.count_of_country-int(message.text.lower()):]) if i != '')
+        bot.send_message(message.chat.id, '\n '.join(i for i in list(x[wiki.count_of_country:wiki.count_of_country-int(message.text.lower())-1:-1]) if i != '')
                          + '\n' + '\n' + "Теперь можете перейти в /table /reset /help  или ввести число еще раз")
     elif message.text.lower().strip() == "/list_tail":
         bot.send_message(message.chat.id, "Список из которого числа стран вам показать? Напишите любое число от 1 до "
                          + str(wiki.count_of_country))
-    elif message.text.lower().strip() in ( "/list_head", "/country"):
+    elif message.text.lower().strip() in ("/list_head", "/country"):
         bot.send_message(message.chat.id, "Прежде, чем воспользоваться этой командой, перейдите в /table,  \n"
                                           "или введите все-таки любое число от 1 до " + str(wiki.count_of_country) + " ,\n"
                                           "и я покажу вам список самых малочисленных стран")
@@ -144,15 +144,15 @@ def tail_list(message):
 
 @bot.message_handler(func=lambda message: message.text.lower() not in ('/start' , '/help', '/map', '/table', '/finish', '/about', '/reset')
                      and dbworker.get_current_state(message.chat.id) == config.states.S_HEAD_LIST.value)
-def tail_list(message):
+def head_list(message):
     if message.text.lower().strip().isdigit() and int(message.text.lower().strip()) <= wiki.count_of_country and int(message.text.lower().strip()) >= 1:
         x = wiki.country_pop_info.country
-        bot.send_message(message.chat.id,', '.join(i for i in list(x[:int(message.text.lower())]) if i != '')
+        bot.send_message(message.chat.id, ', '.join(i for i in list(x[:int(message.text.lower())]) if i != '')
                          + '\n' + '\n' + "Теперь можете перейти в /table /reset /help или ввести число еще раз")
     elif message.text.lower().strip() == "/list_head":
         bot.send_message(message.chat.id, "Список из которого числа стран вам показать? Напишите любое число от 1 до "
                          + str(wiki.count_of_country))
-    elif message.text.lower().strip() in ( "/list_tail", "/country"):
+    elif message.text.lower().strip() in ("/list_tail", "/country"):
         bot.send_message(message.chat.id, "Прежде, чем воспользоваться этой командой, перейдите в /table,  \n"
                                           "или введите все-таки любое число от 1 до " + str(wiki.count_of_country) + " ,\n"
                                           "и я покажу вам список стран с самой большой численностью населения")
@@ -162,16 +162,16 @@ def tail_list(message):
 
 @bot.message_handler(func=lambda message: message.text.lower() not in ('/start' , '/help', '/map', '/table', '/finish', '/about', '/reset')
                      and dbworker.get_current_state(message.chat.id) == config.states.S_COUNTRY.value)
-def tail_list(message):
+def country_list(message):
     df = wiki.country_pop_info.loc[:, 'position':'link']
     leng = len(message.text.capitalize().strip())
-    if leng>=3 and len(df[df['country'].str.contains(message.text.capitalize().strip())]) >=1:
-        x = df[df['country'].str.contains(message.text.capitalize().strip())]#.style.hide_index()
-        bot.send_message(message.chat.id, tabulate(x, headers=["Позиция","Страна", "Численность","Ссылка на статью о стране"],showindex=False) #, tablefmt="grid")
-                         + '\n' + '\n' + "Теперь можете перейти в /table /reset /help или ввести число еще раз")
+    if leng >= 3 and len(df[df['country'].str.contains(message.text.capitalize().strip())]) >= 1:
+        x = df[df['country'].str.contains(message.text.capitalize().strip())]  # style.hide_index()
+        bot.send_message(message.chat.id, tabulate(x, headers=["Позиция", "Страна", "Численность", "Ссылка на статью о стране"], showindex=False) #, tablefmt="grid")
+                         + '\n' + '\n' + "Теперь можете перейти в /table /reset /help или ввести буквы еще раз")
     elif message.text.lower().strip() == "/country":
         bot.send_message(message.chat.id, "Напишите как минимум 3 первые буквы в названии страны:")
-    elif message.text.lower().strip() in ( "/list_tail", "/list_head"):
+    elif message.text.lower().strip() in ("/list_tail", "/list_head"):
         bot.send_message(message.chat.id, "Прежде, чем воспользоваться этой командой, перейдите в /table,  \n"
                                           "или напишите как минимум 3 первые буквы в названии страны, " 
                                           "и я покажу вам информацию о её численности")
@@ -180,8 +180,8 @@ def tail_list(message):
                                             "Или воспользуйтесь командами /table /reset /help")
 
 
-@bot.message_handler(func=lambda message: message.text.lower()  not in ('/start' , '/help', '/map', '/table', '/finish', '/about', '/reset')
-                    and dbworker.get_current_state(message.chat.id) in (config.states.S_TAIL_LIST.value,
+@bot.message_handler(func=lambda message: message.text.lower() not in ('/start', '/help', '/map', '/table', '/finish', '/about', '/reset')
+                    and dbworker.get_current_state(message.chat.id) not in (config.states.S_TAIL_LIST.value,
                                                                             config.states.S_LIST_OR_COUNTRY.value,
                                                                             config.states.S_HEAD_LIST.value,
                                                                             config.states.S_COUNTRY.value))
